@@ -31,6 +31,7 @@ public class JRMPClientImpl implements JRMPClient {
     private JRMPClient myStub;
     private String Msg;
     private String[] TuaMadre = new String[2];
+    private BigInteger[] Key = new BigInteger[2];
     
     public JRMPClientImpl(MainServerAdmin ms) throws RemoteException {
     	mainServJRMP = ms;
@@ -68,16 +69,32 @@ public class JRMPClientImpl implements JRMPClient {
                                 JOptionPane.INFORMATION_MESSAGE, new ImageIcon(
                                         icon), null, null);
                         addMessage(Msg);
+                        Key[0] = null;
+                        Key[1] = null;
                         try {
-                        	TuaMadre = mainServJRMP.LeggiChiave();
-						} catch (IOException e) {
+                        	while (Key[1] == null){
+                        		if (mainServJRMP.LeggiChiave() != null) {
+                        			TuaMadre = mainServJRMP.LeggiChiave();
+                        			Key[0] = toBigInteger(TuaMadre[0]);
+                        			Key[1] = toBigInteger(TuaMadre[1]);
+                        		}
+                        		else {
+                        			Thread.currentThread();
+                        			Thread.sleep(100);
+                        		}
+                        	}
+			} catch (IOException e) {
 					
-							e.printStackTrace();
-						}
-						System.out.println(TuaMadre[0]+ "\n" +TuaMadre[1]);
+				e.printStackTrace();
+			}catch (InterruptedException e) {
+							
+				e.printStackTrace();
+			}catch (NullPointerException e){
+				System.out.println("è a null");
+			}
                         //PublicKey = mainServJRMP.SearchArrayPrimi();
                         //System.out.println("Ho trovato la chiave! che e :" + PublicKey[0] + PublicKey[1]);
-                        //codifyMsg(Msg, PublicKey);
+                        codifyMsg(Msg, Key);
                         
                         break;
                     }
