@@ -5,3 +5,5 @@
 3  Aggiungere opzione all'IIOP per decodificare il messaggio (la finestra deve continuare a comparire)
 
 4 mettere il messaggio codificato dal JRMP nel codebase del server (spazio condiviso)
+ 
+ cacca
