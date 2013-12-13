@@ -90,7 +90,7 @@ public class AuthIIOPClient implements Runnable {
 						}
 	
 						MarshalledObject<IIOPClient> mo = null;
-						mo = as.login(username, password);
+						mo = (MarshalledObject<IIOPClient>) as.login(username, password);
 						if (mo != null) {
 							IIOPClient ai = mo.get();
 							ai.act();
