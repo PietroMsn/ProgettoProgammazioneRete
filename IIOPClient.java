@@ -2,15 +2,14 @@ package server;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
  * Interfaccia dei client verso il server centrale e il server di autenticazione.
  * 
- * @author Federico De Meo
- * @author Oscar Maraia
+ * @author Pietro Musoni	
+ * @author Carlo Tacchella
  *
  */
 public interface IIOPClient extends Serializable, Remote {
