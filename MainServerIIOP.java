@@ -3,7 +3,7 @@ package server;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.rmi.MarshalledObject;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -23,7 +23,7 @@ public interface MainServerIIOP extends Remote {
 	 * @param mo lo stub del mobile server esportato sul client.
 	 * @throws RemoteException nel caso in cui l'indirizzo passato non sia valido.
 	 */
-	//public void addClient(String address,MarshalledObject mo) throws RemoteException;
+
 	
 	/**
 	 * 
@@ -41,9 +41,6 @@ public interface MainServerIIOP extends Remote {
 	 */
 	
 	
-	//public BigInteger[] KeyRequest() throws RemoteException;
-	
-	public BigInteger[] SearchArrayPrimi() throws RemoteException;
 	
 	public void scriviChiave(BigInteger[] Primi) throws IOException;
 	
