@@ -13,10 +13,7 @@ import java.rmi.RemoteException;
  * 
  */
 public interface JRMPClient extends Serializable,Remote {
-	public static boolean WaitIIOPClient = true;
-	public static boolean WaitServer = true;
-	public static BigInteger[] Key = new BigInteger[100];
-	public static int counter = 0;
+	
 	/**
 	 * Codice principale eseguito dall'amministratore.
 	 * 
