@@ -29,6 +29,7 @@ public class AuthJRMPClient implements Runnable {
 	private String username;
 	private char[] password;
 
+	@SuppressWarnings("unchecked")
 	public void run() {
 
 		try {
@@ -90,7 +91,7 @@ public class AuthJRMPClient implements Runnable {
 							password = ((JPasswordField) message[3]).getPassword();
 						}
 	
-						mo = as.login(username, password);
+						mo = (MarshalledObject<JRMPClient>) as.login(username, password);
 						if (mo != null) {
 							JRMPClient ai = mo.get();
 							ai.actAdmin();
