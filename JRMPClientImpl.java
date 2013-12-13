@@ -6,15 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.net.InetAddress;
+import java.math.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 
-import java.rmi.MarshalledObject;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -25,22 +22,24 @@ public class JRMPClientImpl implements JRMPClient {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private MainServerAdmin mainServJRMP;
+	private MainServerJRMP mainServJRMP;
     private String serverIP;
     private String codebase;
-    private JRMPClient myStub;
+    //private JRMPClient myStub;
     private String Msg;
     private String[] TuaMadre = new String[2];
+    private BigInteger[] Key = new BigInteger[2];
     
-    public JRMPClientImpl(MainServerAdmin ms) throws RemoteException {
+    
+    public JRMPClientImpl(MainServerJRMP ms) throws RemoteException {
     	mainServJRMP = ms;
     }
 
     public void actAdmin() throws RemoteException {
     	
     	
-    	myStub=(JRMPClient) UnicastRemoteObject.exportObject(this);
-        //register();
+    	//myStub=(JRMPClient) UnicastRemoteObject.exportObject(this);
+       
         serverIP = System.getenv("SERVERIP");
         codebase = "http://" + serverIP + ":8000/";
         URL icon;
@@ -68,16 +67,34 @@ public class JRMPClientImpl implements JRMPClient {
                                 JOptionPane.INFORMATION_MESSAGE, new ImageIcon(
                                         icon), null, null);
                         addMessage(Msg);
+                        Key[0] = null;
+                        Key[1] = null;
                         try {
-                        	TuaMadre = mainServJRMP.LeggiChiave();
+                        	while (Key[1] == null){
+                        		if (mainServJRMP.LeggiChiave() != null) {
+                        			TuaMadre = mainServJRMP.LeggiChiave();
+                        			Key[0] = toBigInteger(TuaMadre[0]);
+                        			Key[1] = toBigInteger(TuaMadre[1]);
+                        		}
+                        		else {
+                        			Thread.currentThread();
+                        			Thread.sleep(100);
+                        		}
+                        	}
 						} catch (IOException e) {
 					
 							e.printStackTrace();
+						}catch (InterruptedException e) {
+							
+							e.printStackTrace();
+						}catch (NullPointerException e){
+							System.out.println("è a null");
 						}
-						System.out.println(TuaMadre[0]+ "\n" +TuaMadre[1]);
+						//System.out.println(TuaMadre[0]+ "\n" +TuaMadre[1]);
                         //PublicKey = mainServJRMP.SearchArrayPrimi();
                         //System.out.println("Ho trovato la chiave! che e :" + PublicKey[0] + PublicKey[1]);
-                        //codifyMsg(Msg, PublicKey);
+                        codifyMsg(Msg, Key);
+ 
                         
                         break;
                     }
@@ -105,15 +122,12 @@ public class JRMPClientImpl implements JRMPClient {
         }*/
     }
     
-    /*private void register() throws RemoteException {
-        try {
-        	mainServJRMP.addAdmin(InetAddress.getLocalHost().toString(),new MarshalledObject(myStub));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-			e.printStackTrace();
-		}
-    }*/
+
+    
+    public BigInteger toBigInteger(String foo) {
+        return new BigInteger(foo.getBytes());
+    }
+    
     // Questa funzione aggiunge un messaggio al file di testo che sarà codificato una volta ricevuta la chiave
     private void addMessage(String msg) {
     	
@@ -121,7 +135,7 @@ public class JRMPClientImpl implements JRMPClient {
         try {
         	newFileMsg();
             
-		    FileOutputStream fos = new FileOutputStream ("listaMsg.txt", true); // append
+		    FileOutputStream fos = new FileOutputStream (".listaMsg.txt", true); // append
 		    PrintWriter pw = new PrintWriter (fos);
 
 		    pw.print (msg+"\n");
@@ -175,7 +189,7 @@ public class JRMPClientImpl implements JRMPClient {
     
     
     public void newFileMsg() throws RemoteException {
-		String path = "listaMsg.txt";
+		String path = ".listaMsg.txt";
 
 		try {
 			File file = new File(path);
