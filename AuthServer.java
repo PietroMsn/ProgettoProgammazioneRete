@@ -22,7 +22,7 @@ public interface AuthServer extends Remote {
 	 * @throws RemoteException nel caso di problemi di comunicazione client\server.
 	 * @throws ClassNotFoundException nel caso in cui non trovi la classe da spedire al client.
 	 */
-	public MarshalledObject login(String username, char[] password)
+	public MarshalledObject<?> login(String username, char[] password)
 			throws RemoteException,ClassNotFoundException;
     
     public boolean isAdmin(String username, char[] givenPassword)
