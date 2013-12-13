@@ -4,6 +4,7 @@ package server;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Serializable;
 
 import java.io.IOException;
 import java.rmi.MarshalledObject;
@@ -30,32 +31,32 @@ import javax.rmi.PortableRemoteObject;
  */
 public class AuthServerImpl implements AuthServer {
 
-    private MainServerClient persRef;
-    private MainServerAdmin adminRef;
+    private MainServerIIOP persRef;
+    private MainServerJRMP adminRef;
     
 
     public AuthServerImpl(Remote ms) throws RemoteException {
         UnicastRemoteObject.exportObject(this, 20000);
         System.out.println("Auth server up!!");
         PortableRemoteObject.exportObject(this);
-        persRef = (MainServerClient)ms;
-        adminRef = (MainServerAdmin)ms;
+        persRef = (MainServerIIOP)ms;
+        adminRef = (MainServerJRMP)ms;
       
     }
 
-    public MarshalledObject login(String username, char[] password)
+    public MarshalledObject<Serializable> login(String username, char[] password)
             throws RemoteException, ClassNotFoundException {
       
         try{
         	
 	        if (isUser(username,password)) {
 	            IIOPClient mc = new IIOPClientImpl(persRef);
-	            return new MarshalledObject(mc);
+	            return new MarshalledObject<Serializable>(mc);
 	        }
 	        
 	        else if(isAdmin(username,password)){
 	            JRMPClient ac = new JRMPClientImpl(adminRef);
-	            return new MarshalledObject(ac);
+	            return new MarshalledObject<Serializable>(ac);
 	        }
 	        
 	        else{
@@ -83,7 +84,7 @@ public class AuthServerImpl implements AuthServer {
 	    	if (newUser(nome, password)){
 		    	//scrivi nome password sul file di testo
                 try {
-		        	FileOutputStream fos = new FileOutputStream ("listaUser.txt", true); // append
+		        	FileOutputStream fos = new FileOutputStream (".listaUser.txt", true); // append
 		        	PrintWriter pw = new PrintWriter (fos);
 
 		        	pw.print (nome+"\n"+StringPassword+"\n");
@@ -110,7 +111,7 @@ public class AuthServerImpl implements AuthServer {
 	    	if (newAdmin(nome, password)){
 		    	//scrivi nome password sul file di testo
                 try {
-		    	FileOutputStream fos = new FileOutputStream ("listaAdmin.txt", true); // append
+		    	FileOutputStream fos = new FileOutputStream (".listaAdmin.txt", true); // append
 		    	PrintWriter pw = new PrintWriter (fos);
                 
                 System.out.println("La password è :" + StringPassword);
@@ -133,7 +134,7 @@ public class AuthServerImpl implements AuthServer {
 
     // Se il file non esiste, lo crea. 
 	public void newFileUser() throws RemoteException {
-		String path = "listaUser.txt";
+		String path = ".listaUser.txt";
 
 		try {
 			File file = new File(path);
@@ -152,7 +153,7 @@ public class AuthServerImpl implements AuthServer {
 
 	// Se il file non esiste, lo crea.
     public void newFileAdmin() throws RemoteException {
-		String path = "listaAdmin.txt";
+		String path = ".listaAdmin.txt";
 
 		try {
 			File file = new File(path);
@@ -175,7 +176,7 @@ public class AuthServerImpl implements AuthServer {
 		
 
 		FileReader f;
-		f=new FileReader("listaAdmin.txt");
+		f=new FileReader(".listaAdmin.txt");
 
 		BufferedReader b;
 		b=new BufferedReader(f);
@@ -203,7 +204,7 @@ public class AuthServerImpl implements AuthServer {
 		String name = " ";
 		
 		FileReader f;
-		f=new FileReader("listaUser.txt");
+		f=new FileReader(".listaUser.txt");
 
 		BufferedReader b;
 		b=new BufferedReader(f);
@@ -233,7 +234,7 @@ public class AuthServerImpl implements AuthServer {
         String givenPassword = CharBuffer.wrap(passwordCercata).toString();
 
 		FileReader f;
-		f=new FileReader("listaAdmin.txt");
+		f=new FileReader(".listaAdmin.txt");
 
 		BufferedReader b;
 		b=new BufferedReader(f);
@@ -267,7 +268,7 @@ public class AuthServerImpl implements AuthServer {
         String given2Password = CharBuffer.wrap(passwordCercata).toString();
         try {
 		    FileReader f;
-		    f=new FileReader("listaUser.txt");
+		    f=new FileReader(".listaUser.txt");
 
 		    BufferedReader b;
 		    b=new BufferedReader(f);
