@@ -13,8 +13,8 @@ import java.rmi.RemoteException;
 import java.rmi.activation.Activatable;
 import java.rmi.activation.ActivationID;
 //import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
+
+
 
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
@@ -25,144 +25,42 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
  * @author Pietro Musoni
  * @author Carlo Tacchella
  */
-public class MainServerImpl extends Activatable implements MainServerClient,
-		MainServerAdmin {
+public class MainServerImpl extends Activatable implements MainServerIIOP,
+		MainServerJRMP {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static boolean WaitIIOPClient = true;
-	public static boolean WaitServer = true;
-	public static BigInteger[] Key = new BigInteger[100];
-	public static int counter = 0;
+	private BigInteger[] PublicKey = new BigInteger[2];
 	
-	//private ArrayList<String> freeClientList;
-	private HashMap<String, IIOPClient> clientList;
-	//private HashMap<String, JRMPClient> adminList;
-	//private static final long serialVersionUID = -6988728787044913015L;
+	
 
 	public MainServerImpl(ActivationID id, MarshalledObject<?> data)
 			throws Exception {
 		
 		super(id, 35000, new SslRMIClientSocketFactory(),
 				new SslRMIServerSocketFactory());
-		//clientList = new HashMap<String, IIOPClient>();
-		//freeClientList = new ArrayList<String>();
-		//adminList = new HashMap<String, JRMPClient>();
+		
 		System.out.println("\nMainServer esportato.");
 	}
 
-	/*public void addClient(String address, MarshalledObject mo)
-			throws RemoteException {
-		try {
-			System.out.println("L'utente all'indirizzo " + address
-					+ " si e' registrato.");
-			clientList.put(address, (IIOPClient) mo.get());
-			freeClientList.add(address);
-			Set<String> keySet = clientList.keySet();
-			for(Object key:keySet)
-				System.out.println(key);
-			
-			if(clientList.isEmpty())
-				System.out.println("è vuota per niente!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}*/
-
-	/*public void addAdmin(String address, MarshalledObject stub)
-			throws RemoteException {
-		try {
-			adminList.put(address, (JRMPClient) stub.get());
-			System.out.println("L'amministratore all'indirizzo " + address
-					+ " si e' registrato.");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}*/
-
-	/*public void removeAdmin(String address) throws RemoteException{
-	    adminList.remove(address);
-	}
 	
-	
-
-	public String[] getClient() throws RemoteException {
-		return clientList.keySet().toArray(new String[0]);
-	}*/
-
-	
-  
-	/* Questa funzione (Se chiamata dal client JRMP), toglie l'attesa per i client IIOP, in modo
-	  che questi iniziino a cercare la chiave (Key). Sarà L'IIOP che trova la chiave a sbloccare il server 
-	  (WaitServer = false) e quindi a restituire la chiave al client JRMP per codificare il messaggio*/
-	
-	/*public BigInteger[] KeyRequest() throws RemoteException{
-		BigInteger[] PublicKey = new BigInteger[2];
-		WaitIIOPClient = false;
-		
-		while (WaitServer){
-			System.out.println("server aspetta");
-			if (counter == 2)
-				WaitServer = false;
-		}
-		
-		
-		
-		//PublicKey = getPublicKey(Key[0],Key[1]);
-		return PublicKey;
-	}*/
-	
-	
-	public BigInteger[] SearchArrayPrimi() throws RemoteException{
-		BigInteger[] temp = new BigInteger[2];
-		Set<String> keySet = clientList.keySet();
-		
-		
-		
-		
-		for(Object key:keySet){
-			
-		     IIOPClient value = clientList.get(key);
-		     System.out.println(key);
-		     temp = value.getArrayPrimi();
-		     
-		     if(!temp.equals(null))
-		    	 	return temp;
-			     
-		     
-		}
-		return null;
-	}
 	     /* controllare che l'array risultante da getArrayPrimi 
 	     sia vuoto per ogni client dell'hashmap, altrimenti abbiamo ottenuto p e q*/
 	
-	public BigInteger[] getPublicKey() throws RemoteException{
+	private BigInteger[] getPublicKey(BigInteger[] ArrayPQ) throws RemoteException{
 		
 		System.out.println("è entrato in getPublic...");
 		
-			BigInteger[] ArrayPQ= new BigInteger[2];
+			
 			final BigInteger[] PublicKey = new BigInteger[2];
 			
-			while (SearchArrayPrimi() == null){
-				System.out.println("non esce maiiiiii");
-				try {
-					Thread.currentThread();
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			ArrayPQ = SearchArrayPrimi();
-		/*final BigInteger temp1 = p.subtract(BigInteger.ONE);
-		final BigInteger temp2 = q.subtract(BigInteger.ONE);
+			
+		final BigInteger temp1 = ArrayPQ[0].subtract(BigInteger.ONE);
+		final BigInteger temp2 = ArrayPQ[1].subtract(BigInteger.ONE);
 		final BigInteger temp = temp1.multiply(temp2);
-		PublicKey[0] = p.multiply(q);
+		PublicKey[0] = ArrayPQ[0].multiply(ArrayPQ[1]);
 		BigInteger Random = BigInteger.valueOf(2); //random grande ma non troppo!!!
 		
 		while (!Euclide(Random, temp) && Random.compareTo(PublicKey[0]) == 1) {
@@ -170,11 +68,8 @@ public class MainServerImpl extends Activatable implements MainServerClient,
 		}
 		
 		PublicKey[1] = Random;
-		*/
-			System.out.println("weeeeeeeeeee " + ArrayPQ[0].toString());
-
-			System.out.println("weeeeeeeeeee " +ArrayPQ[1].toString());
-			
+		
+				
 			
 	
 		return PublicKey;
@@ -184,34 +79,39 @@ public class MainServerImpl extends Activatable implements MainServerClient,
 		String[] chiave = new String[2];
 		
         //String givenPassword = CharBuffer.wrap(passwordCercata).toString();
-
-		FileReader f;
-		f=new FileReader("listaChiavi.txt");
-
-		BufferedReader b;
-		b=new BufferedReader(f);
-
-
+		try {
+			FileReader f;
+			f=new FileReader(".listaChiavi.txt");
 		
-		chiave[0]=b.readLine();
-		chiave[1]=b.readLine();
-		
-           
+			BufferedReader b;
+			b=new BufferedReader(f);
+	
+	
 			
-		b.close();
-		f.close();
+			chiave[0]=b.readLine();
+			chiave[1]=b.readLine();
+			
+	           
+				
+			b.close();
+			f.close();
+	} catch(FileNotFoundException e) {
+		return null;
+	}
         return chiave;
     }
 	
 	
 	public void scriviChiave(BigInteger[] Primi) throws IOException{
+		
+		PublicKey = getPublicKey(Primi);
 		try {
         	newFileMsg();
             
-		    FileOutputStream fos = new FileOutputStream ("listaChiavi.txt", true); // append
+		    FileOutputStream fos = new FileOutputStream (".listaChiavi.txt", true); // append
 		    PrintWriter pw = new PrintWriter (fos);
 
-		    pw.print (Primi[0]+"\n" +Primi[1]);
+		    pw.print (PublicKey[0]+"\n" +PublicKey[1]);
 		    pw.close ();
     
             System.out.println("Hai fatto il file con la chiave\n");
@@ -225,17 +125,20 @@ public class MainServerImpl extends Activatable implements MainServerClient,
 	}
 	
 	public void newFileMsg() throws RemoteException {
-		String path = "listaChiavi.txt";
+		String path = ".listaChiavi.txt";
 
 		try {
 			File file = new File(path);
 
-			if (file.exists())
-				System.out.println("Il file " + path + " esiste");
-			else if (file.createNewFile())
+			if (file.exists()){
+				file.delete();
+				file.createNewFile();
+			}
+			else  {
+				file.createNewFile();
 				System.out.println("Il file " + path + " è stato creato");
-			else
-				System.out.println("Il file " + path + " non può essere creato");
+			}
+			
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -260,9 +163,7 @@ public class MainServerImpl extends Activatable implements MainServerClient,
 	}
 
 
-	public Set<String> getList() {
-		return clientList.keySet();
-	}
+	
 	
 	
 }
